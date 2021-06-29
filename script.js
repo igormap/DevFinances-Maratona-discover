@@ -28,13 +28,33 @@ const transactions = [{
 
 const Transaction = {
   // somar as entradas
-  incomes() {},
+  incomes() {
+    let income = 0
+    
+    transactions.forEach(transaction => {
+      if (transaction.amount > 0) {
+        income += transaction.amount
+      }
+    })
+    return income
+  },
 
   // somar as saídas
-  expenses() {},
+  expenses() {
+    let expense = 0
+    
+    transactions.forEach(transaction => {
+      if (transaction.amount < 0) {
+        expense += transaction.amount
+      }
+    })
+    return expense
+  },
 
   // entradas - saídas
-  total() {},
+  total() {
+    return Transaction.incomes() + Transaction.expenses()
+  },
 }
 
 // Substituir dados HTML por dados JS
@@ -55,11 +75,11 @@ const DOM = {
   innerHTMLTransaction(transaction) {
     const CSSclass = transaction.amount > 0 ? "income" : "expense"
 
-    // const amount = 
+    const amount = Utils.formatCurrency(transaction.amount)
 
     const html = `
         <td class="description">${transaction.description}</td>
-        <td class="${CSSclass}">${transaction.amount}</td>
+        <td class="${CSSclass}">${amount}</td>
         <td class="date">${transaction.date}</td>
         <td>
             <img src="./assets/minus.svg" alt="Remover transação">
@@ -67,6 +87,13 @@ const DOM = {
     `
 
     return html
+  },
+
+  // parte visual da parte que mostra os totais
+  updateBalance() {
+    document.getElementById('incomeDisplay').innerHTML = Utils.formatCurrency(Transaction.incomes())
+    document.getElementById('expenseDisplay').innerHTML =  Utils.formatCurrency(Transaction.expenses())
+    document.getElementById('totalDisplay').innerHTML =  Utils.formatCurrency(Transaction.total())
   }
 }
 
@@ -76,11 +103,24 @@ const Utils = {
     // transformando o número e se negativo atribuindo sinal
     const signal = Number(value) < 0 ? "-" : ""
 
-    
+    // transformando tudo que não é numero em value. Retirando o sinal negativo
+    value = String(value).replace(/\D/g, "")
+
+    // transforma o número colocando as casas decimais
+    value = Number(value) / 100
+
+    // função que transforma o número para a formatação monetária do local escolhido
+    value = value.toLocaleString("pt-br", {
+      style: "currency",
+      currency: "BRL"
+    })
+ 
+    return signal + value
   }
 }
 
-transactions.forEach(function(transaction){
+transactions.forEach(function (transaction) {
   DOM.addTransaction(transaction)
 })
 
+DOM.updateBalance()
