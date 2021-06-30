@@ -27,13 +27,24 @@ const transactions = [{
 ]
 
 const Transaction = {
+  // futuramente as transações serão armazenadas no local storage
+  all: transactions,
+  add(transaction) {
+    Transaction.all.push(transaction)
+
+    App.reload()
+  },
+
+  remove(index) {
+
+  }
+  
   // somar as entradas
   incomes() {
-    let income = 0
-    
-    transactions.forEach(transaction => {
+    let income = 0    
+    Transaction.all.forEach(transaction => {
       if (transaction.amount > 0) {
-        income += transaction.amount
+         income += transaction.amount
       }
     })
     return income
@@ -41,9 +52,8 @@ const Transaction = {
 
   // somar as saídas
   expenses() {
-    let expense = 0
-    
-    transactions.forEach(transaction => {
+    let expense = 0    
+    Transaction.all.forEach(transaction => {
       if (transaction.amount < 0) {
         expense += transaction.amount
       }
@@ -94,6 +104,10 @@ const DOM = {
     document.getElementById('incomeDisplay').innerHTML = Utils.formatCurrency(Transaction.incomes())
     document.getElementById('expenseDisplay').innerHTML =  Utils.formatCurrency(Transaction.expenses())
     document.getElementById('totalDisplay').innerHTML =  Utils.formatCurrency(Transaction.total())
+  },
+
+  clearTransactions() {
+    DOM.transactionsContainer.innerHTML = ''
   }
 }
 
@@ -119,8 +133,29 @@ const Utils = {
   }
 }
 
-transactions.forEach(function (transaction) {
-  DOM.addTransaction(transaction)
-})
+// responsável por iniciar as funcionalidades 
+const App = {
+  // o que roda no início do app
+  init() {
+    Transaction.all.forEach(transaction => {
+      DOM.addTransaction(transaction)
+    })
+    
+    DOM.updateBalance()
+  },
+  reload() {
+    // para evitar o repopulação na tela com os mesmos dados no reload limpa-se primeiro
+    DOM.clearTransactions()
+    // chama o inicio novamente para verificar se há mais dados
+    App.init()
+  },
+}
 
-DOM.updateBalance()
+App.init() 
+
+Transaction.add({
+  id: 30,
+  description: 'Água',
+  amount: -200,
+  date: '23/01/2021'
+})
