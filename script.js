@@ -5,25 +5,18 @@ const Modal = {
   }
 }
 
+const Storage = {
+  get() {
+    return JSON.parse(localStorage.getItem('devfinances:transactions')) || []
+  },
+  set(transactions) {
+    localStorage.setItem("devfinances:transactions", JSON.stringify(transactions))
+  }
+}
+
 const Transaction = {
-  // Lista de objetos da tabela
-  all: [
-    {
-    description: 'Luz',
-    amount: -50000,
-    date: '23/01/2021'
-  },
-  {
-    description: 'Website',
-    amount: 50000,
-    date: '23/01/2021'
-  },
-  {
-    description: 'Internet',
-    amount: -20000,
-    date: '23/01/2021'
-  },
-],
+  all: Storage.get(),
+  
   add(transaction) {
     Transaction.all.push(transaction)
 
@@ -64,7 +57,6 @@ const Transaction = {
   },
 }
 
-// Substituir dados HTML por dados JS
 const DOM = {
   // container que conterá as entradas
   transactionsContainer: document.querySelector('#data-table tbody'),
@@ -214,13 +206,14 @@ const Form = {
   },
 }
 
-// responsável por iniciar as funcionalidades 
 const App = {
   // o que roda no início do app
   init() {
     Transaction.all.forEach(DOM.addTransaction)
     
     DOM.updateBalance()
+
+    Storage.set(Transaction.all)
   },
   reload() {
     // para evitar o repopulação na tela com os mesmos dados no reload limpa-se primeiro
